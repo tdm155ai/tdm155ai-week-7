@@ -1,0 +1,27 @@
+{
+  "name": "tdm155ai-week-7-tools",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "image": "node utils/generate-image.mjs",
+    "video": "node utils/generate-video.mjs",
+    "text": "node utils/generate-text.mjs",
+    "batch": "node utils/batch-images.mjs",
+    "batch-text": "node utils/batch-text.mjs",
+    "models": "node utils/list-image-models.mjs",
+    "openrouter-models": "node utils/list-openrouter-models.mjs",
+    "text-models": "node utils/list-text-models.mjs",
+    "fal-models": "node utils/list-fal-models.mjs",
+    "stills": "node utils/stills.mjs",
+    "compress-image": "node utils/compress-image.mjs",
+    "test": "node --test utils/test/*.test.mjs"
+  },
+  "packageManager": "pnpm@10.7.0",
+  "dependencies": {
+    "sharp": "^0.35.4"
+  }
+}

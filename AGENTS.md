@@ -29,3 +29,4 @@ Relative links between `.md` files work, and an image saved beside a doc shows i
 
 - The site is a Next app in `nextjs/`. The student runs it themselves: `cd nextjs`, `pnpm install`, `pnpm dev`. Don't start it in the background.
 - Plain JavaScript with its own CSS (`app/globals.css`); no TypeScript, Tailwind, or API keys.
+- `utils/` at the repo root, outside the app, has the generation scripts (text, image, video), model listers, stills extractor, and image compressor, run from the root with `pnpm text`, `pnpm image`, `pnpm video`, `pnpm stills`, `pnpm compress-image`; keys go in the gitignored root `.env` (template `.env.example`), outputs in `output/`. See [`utils/README.md`](utils/README.md). The week's editing tools live beside them in `utils/multicam/` and `utils/edit/`.
