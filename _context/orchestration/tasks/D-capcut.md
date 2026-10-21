@@ -23,7 +23,7 @@ October 21: "i want to have pages on some key video editing tools, including imo
 3. **In `ai-tools.md`**, shorten the CapCut section to a few lines that point to the new sheet.
 4. Don't change the four existing sheets. If you find an error in them, list it in your report.
 
-Check that the page renders if you can (don't start a background dev server; see rule 5), otherwise say you didn't.
+Check that the page and the table render on the running dev server, http://localhost:3007/resources/video and `/resources/video/capcut` (rule 5).
 
 ## When you finish
 
