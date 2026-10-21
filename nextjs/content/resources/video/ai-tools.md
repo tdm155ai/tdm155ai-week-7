@@ -13,7 +13,7 @@ The four editors in this section all have AI features built in. The tools on thi
 | Tool | What it does for an edit | Price (Oct 2026) | Runs where | Hands off to your editor? |
 | --- | --- | --- | --- | --- |
 | [Descript](#descript) | Edit video by editing its transcript; voice cleanup | Free tier; paid from $16/month (annual) | Mac app and web, cloud processing | Yes: FCPXML, Premiere XML, Resolve XML, AAF |
-| [CapCut](#capcut) | Quick social edits with templates, auto captions | Free tier; paid from $9.99/month | Mac app, web, phone | No timeline export |
+| [CapCut](capcut.md) | Quick social edits with templates, auto captions | Free tier; paid from $9.99/month | Mac app, web, phone | No timeline export |
 | [Runway](#runway) | Prompt-based changes to existing footage (Edit Studio) | 125 free credits once; paid from $12/month (annual) | Web, cloud | You download clips |
 | [Adobe Firefly](#adobe-firefly-video) | Browser video editor plus generated clips and prompt edits | Included in Harvard's Adobe license (1,000 credits/month) | Web (Chrome), cloud | You download clips |
 | [auto-editor](#auto-editor) | Cuts silences out of a recording | Free, open source | Your Mac, offline | Yes: FCPXML, Premiere XML, Resolve, Shotcut, Kdenlive |
@@ -37,16 +37,7 @@ Be careful with voice cloning and AI voices on interview material. Changing what
 
 ## CapCut
 
-CapCut, from ByteDance (TikTok's parent company), is a free editor aimed at short social video: templates, effects, auto captions, keyframes, chroma key, and a multi-layer timeline, on the Mac, the web, and phones.
-
-| | |
-| --- | --- |
-| Plans | Free tier with limits (exports cap at 1080p). Paid tiers as of mid-October 2026, from a third-party check of CapCut's pages: Standard $9.99/month, Pro $19.99/month or $179.99/year, Ultra $79/month. Prices vary by country and are higher through app stores. |
-| AI features | Auto captions, background removal, and generative tools that use AI credits on paid plans. |
-| Good for | Vertical video with captions, fast. |
-| Not good for | Handing a timeline to another editor: it doesn't export FCPXML, EDL, or OTIO. |
-
-Many CapCut features process your footage on its servers. Read its terms before uploading interviews or anything you don't have permission to share.
+CapCut, from ByteDance (TikTok's parent company), is a free editor for short social video with templates, auto captions, and background removal, on the Mac, the web, and phones. It doesn't export a timeline to other editors, and its terms give the company a broad license to what you upload. It now has its own sheet: [CapCut](capcut.md).
 
 ## Runway
 

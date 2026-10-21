@@ -1,6 +1,6 @@
 ---
 title: Video
-description: The four video editors you can use on a Mac, the words they all share, and how Claude fits into an edit.
+description: The five video editors you can use on a Mac, the words they all share, and how Claude fits into an edit.
 author: claude
 order: 20
 checked: 2026-10-20
@@ -8,21 +8,22 @@ checked: 2026-10-20
 
 Every video editor does the same job: you bring in clips, pick the parts worth keeping, put them in an order, and export one file. The apps differ in price, in how much they hide from you, and in which AI tools they include. The decisions are yours in all of them: what stays, what goes, what comes first.
 
-## The four editors compared
+## The five editors compared
 
-| | [iMovie](imovie.md) | [Final Cut Pro](final-cut-pro.md) | [DaVinci Resolve](davinci-resolve.md) | [Premiere](premiere-pro.md) |
-| --- | --- | --- | --- | --- |
-| Maker | Apple | Apple | Blackmagic Design | Adobe |
-| Price | Free | $299.99 once, or Apple Creator Studio ($2.99/month or $29.99/year for students) | Free; Studio is a one-time $295 | Free to Harvard students through HUIT's Adobe Creative Cloud license |
-| Platforms | Mac, iPhone, iPad | Mac, iPad | Mac, Windows, Linux (plus iPad) | Mac, Windows |
-| Version (Oct 2026) | 10.4.5 | 12.4 | 21.1 | 26.5 |
-| Learning curve | An afternoon | A week to feel at home | Steep; the Cut page is the easy way in | Steep-ish; very well documented |
-| AI features | Few: auto enhance, background noise reduction | Many, all on-device: Magnetic Mask, Transcript Search, Visual Search, captions, Beat Detection, Smooth Slo-Mo | Many, almost all Studio-only; Studio 21.1 also lets Claude control Resolve over MCP | Many: Text-Based Editing, Enhance Speech, Media Intelligence (on-device); Generative Extend (cloud, uses credits) |
-| Best for | A first cut tonight | Fast editing on a Mac | Color, audio cleanup, and a free pro tool | Transcript-driven editing and the rest of Adobe's apps |
+| | [iMovie](imovie.md) | [CapCut](capcut.md) | [Final Cut Pro](final-cut-pro.md) | [DaVinci Resolve](davinci-resolve.md) | [Premiere](premiere-pro.md) |
+| --- | --- | --- | --- | --- | --- |
+| Maker | Apple | ByteDance (US: TikTok USDS Joint Venture) | Apple | Blackmagic Design | Adobe |
+| Price | Free | Free; paid plans from $7.99/month (Pro $19.99/month) | $299.99 once, or Apple Creator Studio ($2.99/month or $29.99/year for students) | Free; Studio is a one-time $295 | Free to Harvard students through HUIT's Adobe Creative Cloud license |
+| Platforms | Mac, iPhone, iPad | Mac, Windows, web, iPhone, iPad, Android | Mac, iPad | Mac, Windows, Linux (plus iPad) | Mac, Windows |
+| Version (Oct 2026) | 10.4.5 | 19.8 (phone app) | 12.4 | 21.1 | 26.5 |
+| Learning curve | An afternoon | An afternoon | A week to feel at home | Steep; the Cut page is the easy way in | Steep-ish; very well documented |
+| AI features | Few: auto enhance, background noise reduction | Many, mostly in the cloud and often paid: auto captions, Remove BG, AI remove, voices, generation | Many, all on-device: Magnetic Mask, Transcript Search, Visual Search, captions, Beat Detection, Smooth Slo-Mo | Many, almost all Studio-only; Studio 21.1 also lets Claude control Resolve over MCP | Many: Text-Based Editing, Enhance Speech, Media Intelligence (on-device); Generative Extend (cloud, uses credits) |
+| Best for | A first cut tonight | Vertical video with captions for social media | Fast editing on a Mac | Color, audio cleanup, and a free pro tool | Transcript-driven editing and the rest of Adobe's apps |
 
 ## Which to pick when
 
 - **You have never edited and the project is due soon:** iMovie. You will outgrow it, and when you do, File > Send Movie To Final Cut Pro carries the edit across.
+- **The piece is short, vertical, and needs captions on screen:** CapCut. Read its terms first: what you upload is licensed to the company, so keep interviews you promised to protect out of it.
 - **You edit on a Mac and want speed:** Final Cut Pro. Its magnetic timeline keeps clips from overlapping or leaving gaps, so cutting goes fast. Apple Creator Studio starts with a free month.
 - **You want one free app that does editing, color, effects, and sound:** DaVinci Resolve. The free version is a full professional editor. Pay for Studio only when you need its AI tools, scripting, or the Claude connection.
 - **You want to cut an interview by editing its transcript, or you already use Photoshop and After Effects:** Premiere. Harvard pays for it.
@@ -57,7 +58,7 @@ For anything going to the web, a class site, or Slack: **H.264 in an .mp4, the s
 
 ## Working with Claude on an edit
 
-Only Resolve Studio 21.1 has a built-in way for Claude to operate the app directly (see its sheet). What Claude can do for all four is read and write the files around the edit: transcripts, caption files, and timeline files that the editor imports.
+Only Resolve Studio 21.1 has a built-in way for Claude to operate the app directly (see its sheet). What Claude can do for all five is read and write the files around the edit: transcripts, caption files, and timeline files that the editor imports.
 
 ### Paper cut from a transcript
 
@@ -156,6 +157,7 @@ where `papercut_otio.py` builds a `Timeline` with one `Track`, appends a `Clip` 
 ## The sheets
 
 - [iMovie](imovie.md): free, simple, on every Mac.
+- [CapCut](capcut.md): free, quick vertical video with captions; read the terms.
 - [Final Cut Pro](final-cut-pro.md): Apple's professional editor.
 - [DaVinci Resolve](davinci-resolve.md): free professional editor, colorist's tool, and the one Claude can drive.
 - [Premiere](premiere-pro.md): Adobe's editor, free to Harvard students.
