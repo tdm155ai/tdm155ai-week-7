@@ -1,0 +1,52 @@
+/* The background remover. Uses the site's colors (app/globals.css). */
+.rb { display: grid; gap: 34px; margin-top: 28px; }
+.rb h2 { margin: 0 0 14px; font-size: 22px; letter-spacing: -.02em; }
+.rb button, .rb select { min-height: 38px; padding: 7px 12px; border: 1px solid var(--line); border-radius: 6px; background: var(--wash); color: var(--ink); font: inherit; font-size: 13px; cursor: pointer; }
+.rb button:hover { border-color: var(--accent); }
+.rb button:disabled { opacity: .45; cursor: default; }
+.rb button[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
+.rb .rb-go { justify-self: start; background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 650; }
+.rb :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.rb code { font-size: .9em; }
+.rb-doclink, .rb a { color: var(--accent); }
+.rb-doclink:hover, .rb a:hover { text-decoration: underline; }
+.rb-step { display: grid; gap: 12px; }
+.rb-note { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.6; }
+.rb-error { margin: 0; padding: 12px 14px; border: 1px solid var(--error); border-radius: 8px; white-space: pre-wrap; font-size: 14px; }
+.rb-warn { display: grid; gap: 10px; padding: 14px 16px; border: 1px solid var(--accent); border-radius: 8px; font-size: 14px; line-height: 1.55; }
+.rb-warn p { margin: 0; }
+.rb pre { margin: 0; padding: 10px 12px; border-radius: 6px; background: #080908; font-size: 12.5px; white-space: pre-wrap; overflow-wrap: anywhere; }
+
+/* choosing a photo */
+.rb-photos { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; }
+.rb .rb-thumb { display: grid; gap: 4px; padding: 0 0 6px; overflow: hidden; background: #080908; text-align: left; }
+.rb-thumb img { display: block; width: 100%; aspect-ratio: 1; object-fit: cover; }
+.rb-thumb span { padding: 0 6px; color: var(--muted); font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rb-drop { display: grid; align-content: center; gap: 8px; padding: 10px; border: 1px dashed var(--line); border-radius: 6px; color: var(--muted); font-size: 12px; }
+.rb-drop input { max-width: 100%; font-size: 11px; }
+
+/* the method */
+.rb-methods { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+.rb-methods label { display: grid; grid-template-columns: auto 1fr; gap: 4px 10px; padding: 14px 16px; border: 1px solid var(--line); border-radius: 10px; background: var(--wash); cursor: pointer; }
+.rb-methods label.rb-on { border-color: var(--accent); }
+.rb-methods input { grid-row: span 2; accent-color: var(--accent); }
+.rb-methods span { color: var(--muted); font-size: 13px; line-height: 1.5; }
+.rb-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+.rb-row .rb-note { grid-column: 1 / -1; }
+.rb-field { display: grid; gap: 6px; color: var(--muted); font-size: 13px; }
+.rb-field input[type="range"] { accent-color: var(--accent); }
+
+/* the result, over a checkerboard so transparency shows */
+.rb-result { display: grid; grid-template-columns: minmax(0, 3fr) minmax(260px, 2fr); gap: 24px; align-items: start; }
+.rb-stage { padding: 12px; border: 1px solid var(--line); border-radius: 10px; background: repeating-conic-gradient(#3a3d38 0 25%, #262824 0 50%) 0 0 / 24px 24px; }
+.rb-stage canvas { display: block; max-width: 100%; max-height: 70vh; margin: 0 auto; }
+.rb-side { display: grid; gap: 12px; font-size: 14px; }
+.rb-side p { margin: 0; overflow-wrap: anywhere; }
+.rb-command { color: var(--muted); }
+.rb-backgrounds { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0; padding: 0; border: 0; }
+.rb-backgrounds legend { margin-bottom: 8px; color: var(--muted); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; }
+.rb .rb-swatch { width: 38px; padding: 0; }
+.rb .rb-swatch[aria-pressed="true"] { outline: 2px solid var(--accent); outline-offset: 2px; }
+.rb-backgrounds input[type="color"] { width: 44px; height: 38px; padding: 2px; border: 1px solid var(--line); border-radius: 6px; background: var(--wash); }
+
+@media (max-width: 860px) { .rb-result { grid-template-columns: 1fr; } }

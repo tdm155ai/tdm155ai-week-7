@@ -8,6 +8,8 @@ export const metadata = { title: "Tools" };
 // Each tool is a starter meant to be forked: copy its folder (and its app/api/ folder) and ask Claude to change it.
 const tools = [
   { href: "/tools/trimmer", title: "Trimmer", copy: "Mark a whole set of segments in a video, name them, and export each one as its own clip into _media/clips/." },
+  { href: "/tools/photo", title: "Photo editor", copy: "Crop, turn, resize, and adjust a photo in the browser, with presets and a before/after view. Saves a new file in _media/photos/." },
+  { href: "/tools/remove-bg", title: "Background remover", copy: "Cut the subject out of a photo with rembg on your own machine, or with Nano Banana on OpenRouter, and put it on a new background." },
 ];
 
 export default function ToolsPage() {

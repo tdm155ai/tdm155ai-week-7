@@ -1,0 +1,37 @@
+/* The photo editor. Uses the site's colors (app/globals.css). */
+.pe { display: grid; gap: 22px; margin-top: 28px; }
+.pe h2 { margin: 0 0 10px; color: var(--muted); font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+.pe button, .pe select, .pe input[type="number"] { min-height: 36px; padding: 6px 11px; border: 1px solid var(--line); border-radius: 6px; background: var(--wash); color: var(--ink); font: inherit; font-size: 13px; }
+.pe button { cursor: pointer; }
+.pe button:hover { border-color: var(--accent); }
+.pe button:disabled { opacity: .45; cursor: default; }
+.pe button[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
+.pe .pe-go { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 650; }
+.pe :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.pe-doclink { color: var(--accent); }
+.pe-doclink:hover { text-decoration: underline; }
+.pe-note { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.6; }
+.pe-note code { font-size: 12px; }
+
+.pe-open { display: grid; grid-template-columns: minmax(220px, 1fr) minmax(220px, 1fr); gap: 14px; padding: 16px; border: 1px dashed var(--line); border-radius: 10px; }
+.pe-open label { display: grid; gap: 7px; color: var(--muted); font-size: 13px; }
+.pe-drop input { color: var(--muted); font-size: 13px; }
+
+.pe-work { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 26px; align-items: start; }
+.pe-stage { display: grid; gap: 8px; justify-items: center; }
+.pe-frame { position: relative; display: inline-block; max-width: 100%; overflow: hidden; touch-action: none; cursor: crosshair; user-select: none; }
+.pe-frame canvas { display: block; max-width: 100%; max-height: 72vh; border-radius: 4px; }
+.pe-crop { position: absolute; border: 2px solid var(--accent); box-shadow: 0 0 0 9999px rgba(0, 0, 0, .55); pointer-events: none; }
+
+.pe-panel { display: grid; gap: 22px; }
+.pe-buttons { display: flex; flex-wrap: wrap; gap: 6px; }
+.pe-slider { display: grid; gap: 4px; margin-top: 10px; color: var(--ink); font-size: 13px; }
+.pe-slider span { display: flex; justify-content: space-between; }
+.pe-slider output { color: var(--muted); font-variant-numeric: tabular-nums; }
+.pe-slider input { accent-color: var(--accent); }
+.pe-size { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+.pe-size input { width: 100px; }
+.pe-size span { color: var(--muted); }
+.pe-actions { padding-top: 6px; border-top: 1px solid var(--line); }
+
+@media (max-width: 900px) { .pe-work { grid-template-columns: 1fr; } .pe-open { grid-template-columns: 1fr; } }
