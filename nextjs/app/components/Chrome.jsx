@@ -1,13 +1,14 @@
 import Link from "next/link";
 import { site } from "../../lib/content.mjs";
 
-// `current` marks the section you're on: "resources", "audio", "video", "images", "cli", or nothing.
+// `current` marks the section you're on: "resources", "audio", "video", "images", "cli", "tools", or nothing.
 const sections = [
   ["resources", "/resources", "Resources"],
   ["audio", "/resources/audio", "Audio"],
   ["video", "/resources/video", "Video"],
   ["images", "/resources/images", "Images"],
   ["cli", "/resources/cli", "Command line"],
+  ["tools", "/tools", "Tools"],
 ];
 
 export function SiteHeader({ current = "" }) {

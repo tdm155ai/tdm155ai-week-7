@@ -1,0 +1,12 @@
+/* /tools: the index of tools. Each tool brings its own stylesheet (app/tools/<tool>/<tool>.css). */
+.tools-main { max-width: 1300px; margin: 0 auto; padding: 42px var(--gutter) 80px; }
+.tools-main h1 { margin: 18px 0; font-size: clamp(36px, 6vw, 64px); letter-spacing: -.045em; line-height: 1.05; }
+.tools-lede { max-width: 760px; color: var(--muted); font-size: 19px; line-height: 1.6; }
+.tools-lede code { font-size: .85em; }
+.tools-links { display: flex; flex-wrap: wrap; gap: 14px 28px; margin: 24px 0 32px; color: var(--accent); font-size: 14px; }
+.tools-links a:hover { text-decoration: underline; }
+.tools-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 18px; margin-top: 28px; }
+.tools-grid a { display: grid; gap: 8px; padding: 22px 24px; border: 1px solid var(--line); border-radius: 12px; background: var(--wash); color: var(--ink); }
+.tools-grid a:hover { border-color: var(--accent); }
+.tools-grid strong { font-size: 22px; letter-spacing: -.02em; }
+.tools-grid span { color: var(--muted); font-size: 14px; line-height: 1.5; }
