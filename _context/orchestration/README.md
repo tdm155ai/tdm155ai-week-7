@@ -49,7 +49,7 @@ Codex drafted this board on the morning of October 21 (thread `01a15e27-4b1c-726
 | [D](tasks/D-capcut.md) | A CapCut sheet, and CapCut as a fifth column in the video comparison table | Ready | `video/capcut.md`, `video/README.md`, the CapCut section of `video/ai-tools.md` | — | `reports/D-capcut.md` |
 
 | [F](tasks/F-tools-and-trimmer.md) | `/tools`, the shared `_media/` layer (`lib/media.mjs`, `/media/…`), and `/tools/trimmer`: mark many segments, export each as a clip | Ready | `app/tools/` (index, trimmer), `app/api/trim/`, `app/media/`, `lib/media.mjs`, nav link | — | `reports/F-tools-and-trimmer.md` |
-| [G](tasks/G-photo-tools.md) | `/tools/photo` (editor) and `/tools/remove-bg` (rembg locally, or Nano Banana on OpenRouter) | Waiting on F's media-layer commit | `app/tools/{photo,remove-bg}/`, `app/api/{photo,remove-bg}/`, `lib/openrouter.mjs`, `nextjs/.env.example` | F (media layer), C2 (rembg sheet) | `reports/G-photo-tools.md` |
+| [G](tasks/G-photo-tools.md) | `/tools/photo` (editor) and `/tools/remove-bg` (rembg locally, or Nano Banana on OpenRouter) | Waiting on F's media-layer commit | `app/tools/{photo,remove-bg}/`, `app/api/{photo,remove-bg}/`, `lib/openrouter.mjs` | F (media layer), C2 (rembg sheet) | `reports/G-photo-tools.md` |
 
 **Can start now:** D, B, A1, C1, C2, E, and F, all in parallel; no two own the same file. G starts once F has committed its media layer (F's first commit). A2 also builds on F's media layer. Only B edits `package.json`; the others list the script lines they want in their reports and the orchestrator adds them. `cli/` paths above are `nextjs/content/resources/cli/`.
 
