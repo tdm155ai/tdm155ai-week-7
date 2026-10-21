@@ -1,9 +1,9 @@
 ---
 title: ffmpeg and ffprobe
-description: The command-line video and audio tool. Inspect, trim, join, convert, caption, measure, and batch, with recipes tested on a Mac.
+description: The command-line video and audio tool. Three step-by-step demos (normalize audio, compress footage, green-screen key), then inspect, trim, join, convert, caption, measure, and batch, with recipes tested on a Mac.
 author: claude
 order: 10
-checked: 2026-10-20
+checked: 2026-10-21
 ---
 
 ## At a glance
@@ -16,7 +16,7 @@ checked: 2026-10-20
 | Reads | Nearly everything: MOV, MP4, MKV, ProRes, H.264, HEVC, WAV, AIFF, MP3, AAC/M4A, FLAC, image sequences, SRT |
 | Docs | [ffmpeg.org/documentation](https://ffmpeg.org/documentation.html) |
 
-All examples use small test files: `interview.mp4` (10 s, 1280x720, H.264, keyframes every 2 s), `clip1.mov` and `clip2.mov` (5 s ProRes 422 each), `edit.mov` (the two clips cut together), `voice.wav` (a tone, a 2 s pause, another tone) and `music.wav`. Put your results in `output/`: run `mkdir -p output` first.
+All examples use small test files: `interview.mp4` (10 s, 1280x720, H.264, keyframes every 2 s), `clip1.mov` and `clip2.mov` (5 s ProRes 422 each), `edit.mov` (the two clips cut together), `voice.wav` (a tone, a 2 s pause, another tone) and `music.wav`; the three demos make their own (`quiet.wav`, `greenscreen.mp4`, `background.mp4`). Put your results in `output/`: run `mkdir -p output` first.
 
 ## The shape of a command
 
@@ -53,6 +53,178 @@ ffprobe -v error -select_streams v:0 -skip_frame nokey -show_entries frame=pts_t
 ```
 
 On the test file that prints 0, 2, 4, 6, 8: a keyframe every two seconds.
+
+## Three demos: level the sound, shrink the file, key the screen
+
+Each of these is an edit students asked for in week 7, done three ways: step by step here, as a script in `utils/edit/` that prints the command it ran, and as a Claude skill (`.agents/skills/normalize-audio`, `compress-video`, `greenscreen`) so you can ask for it in words. The scripts need Node 22 and run from the repo root; they never touch your original and write to `output/edit/`.
+
+**Make the demo media** if you don't have footage at hand. ffmpeg can generate pictures and sound from nothing (`-f lavfi`): a quiet pink-noise "voice", a 4 s test-pattern "interview" with a quiet tone, a shape moving across a green screen, and a 6 s background.
+
+```sh
+mkdir -p output
+ffmpeg -f lavfi -i "anoisesrc=color=pink:amplitude=0.05:duration=12:seed=3" -af "volume='0.5+0.5*sin(t)':eval=frame" -ar 48000 quiet.wav
+ffmpeg -f lavfi -i "testsrc2=size=1280x720:rate=30:duration=4" -f lavfi -i "sine=frequency=330:duration=4" -af volume=-25dB -c:v libx264 -crf 18 -pix_fmt yuv420p -c:a aac -shortest interview.mp4
+ffmpeg -f lavfi -i "color=c=0x00FF00:size=1280x720:rate=30:duration=4" -f lavfi -i "color=c=0xC04040:size=360x480:rate=30:duration=4" -filter_complex "[1:v]drawbox=x=120:y=80:w=120:h=120:color=0xF0D080:t=fill,format=rgba,geq=r='r(X,Y)':g='g(X,Y)':b='b(X,Y)':a='if(lt(pow(X-180,2)/32400+pow(Y-240,2)/57600,1),255,0)'[s];[0:v][s]overlay=x='120+200*t':y=120:shortest=1[v]" -map "[v]" -c:v libx264 -crf 18 -pix_fmt yuv420p greenscreen.mp4
+ffmpeg -f lavfi -i "testsrc2=size=1280x720:rate=30:duration=6" -c:v libx264 -crf 18 -pix_fmt yuv420p background.mp4
+```
+
+## Demo: normalize audio
+
+Recordings come in at whatever level the mic gave them. Platforms play everything back at a set loudness, measured the broadcast way (EBU R128, in LUFS), so the fix is to measure your file and move it to the target. ffmpeg's `loudnorm` filter does this best in **two passes**: the first measures, the second applies the measured numbers. One pass works too, but it guesses as it goes and lands less exactly.
+
+**What you need:** an audio file, or a video (the picture is copied, only the sound changes). Here, `quiet.wav` from above.
+
+**Pick a target.** Checked 2026-10-21:
+
+| Destination | Integrated | True peak | Why |
+|---|---|---|---|
+| Web and streaming (YouTube, Spotify, Instagram, a website) | -14 LUFS | -1 dBTP | YouTube and Spotify normalize playback to about -14 LUFS, so louder uploads are turned down and quieter ones gain nothing |
+| Podcast, any speech | -16 LUFS | -1 dBTP | Apple Podcasts' delivery spec (stereo). The demo below uses this one |
+| Broadcast | -23 LUFS | -1 dBTP | EBU R128 itself, the television standard |
+
+**1. Measure.** `-f null -` means "decode, run the filter, write nothing"; the filter prints what it found.
+
+```sh
+ffmpeg -hide_banner -nostats -i quiet.wav -af loudnorm=I=-16:TP=-1:LRA=11:print_format=json -f null -
+```
+
+Look for the JSON block at the end. On the demo file: `input_i` -43.66 (that's LUFS; speech should be around -16), `input_tp` -27.51, `input_lra` 9.90, `input_thresh` -54.90, `target_offset` 0.62. Write those four `input_` numbers and the offset down.
+
+**2. Apply with the measured values.** Paste them into `measured_I`, `measured_TP`, `measured_LRA`, `measured_thresh`, and `offset`:
+
+```sh
+ffmpeg -i quiet.wav -af loudnorm=I=-16:TP=-1:LRA=11:measured_I=-43.66:measured_TP=-27.51:measured_LRA=9.9:measured_thresh=-54.9:offset=0.62:linear=true:print_format=summary -ar 48000 output/quiet-normalized.wav
+```
+
+`linear=true` asks for a plain gain change (the whole file up by the same amount), which loudnorm uses when the true-peak ceiling allows; otherwise it rides the level like a limiter and reports `Normalization Type: Dynamic`. The `-ar 48000` matters: loudnorm works internally at 192 kHz and would otherwise write a 192 kHz file.
+
+For a video, copy the picture and encode only the sound: add `-map 0:v:0 -map 0:a:0 -c:v copy -c:a aac -b:a 192k` and give the output the video's extension.
+
+**3. Check.** Measure the output the same way as step 1. On the demo file loudnorm's own summary says -16.0 LUFS, and measuring the written file again gives -16.5 LUFS with a true peak of -1.0 dBTP: half an LU under, because this noise is peaky and the limiter had to hold its peaks under the ceiling (a real voice recording lands closer). Then listen: the level should feel right next to something from the platform. If the result is more than 1 LU off the target, the file is short or very peaky; `LRA=7` flattens dynamics more.
+
+![Waveforms before (grey) and after (blue) normalizing the demo file to -16 LUFS](_images/ffmpeg-normalize-waveforms.jpg)
+
+**The script** does all three steps and prints every command:
+
+```sh
+node utils/edit/normalize-audio.mjs quiet.wav --target podcast
+node utils/edit/normalize-audio.mjs interview.mp4            # web (-14 LUFS) is the default
+node utils/edit/normalize-audio.mjs interview.mp4 --target -18 --lra 7
+```
+
+For a folder of files, [ffmpeg-normalize](more-tools.md#ffmpeg-normalize) wraps the same two passes.
+
+**Ask Claude.** Paste this into Claude Code with your file name:
+
+```text
+Normalize the loudness of recording.m4a for a podcast (-16 LUFS integrated, -1 dBTP true peak). First inspect it with ffprobe and tell me what it is. Don't modify the original: write the result to output/. Use ffmpeg's loudnorm filter in two passes (measure with print_format=json, then apply with the measured_* values and linear=true), keep the sample rate, and if it's a video copy the video stream. Then measure the output and report the loudness before and after, and show me each ffmpeg command you ran.
+```
+
+## Demo: compress footage
+
+Phone and camera files are big because they're encoded for capture (4K at 50 to 100 Mbit/s), not for watching. Re-encoding for **delivery** keeps the look and throws away what nobody sees: a 1080p H.264 at 5 to 8 Mbit/s plays everywhere and is a tenth of the size. That's a different job from a **proxy** for editing, which trades quality for speed and gets swapped back for the originals at the end; see [Resize and make proxies](#resize-and-make-proxies).
+
+**What you need:** the file (here `interview.mp4`), and an idea of where it's going: a size limit (email, Canvas, Slack), a platform, or just "smaller".
+
+**1. Inspect.** Size, length, resolution, bitrate, and codec, so you know what you're starting from:
+
+```sh
+ffprobe -v error -show_entries format=size,duration,bit_rate:stream=codec_name,width,height,r_frame_rate -of json interview.mp4
+```
+
+**2a. Compress by quality (the usual case).** CRF sets how much the encoder may lose; the file size follows from the footage.
+
+```sh
+ffmpeg -i interview.mp4 -c:v libx264 -crf 23 -preset medium -pix_fmt yuv420p -c:a aac -b:a 128k -movflags +faststart output/interview-h264.mp4
+```
+
+Add `-vf scale=-2:1080` to downscale 4K to 1080p (`-2` keeps the aspect ratio and even dimensions; for vertical footage use `-vf scale=1080:-2`). The frame rate stays as it was. A phone's rotation tag is applied automatically on re-encode, so a portrait clip comes out portrait; `ffprobe` shows the stored dimensions, which may be the other way round.
+
+**2b. Compress to a size.** When the limit is a number of megabytes, compute the bitrate and run two passes (the first pass maps the footage; the second spends the bits where they matter). For 25 MB over a 120 s clip: 25 × 8000 ÷ 120 = 1667 kbit/s total, minus 128 for audio, minus a little for the container, gives about 1490 kbit/s of video.
+
+```sh
+ffmpeg -i interview.mp4 -c:v libx264 -b:v 1490k -preset medium -pix_fmt yuv420p -pass 1 -an -f null /dev/null
+ffmpeg -i interview.mp4 -c:v libx264 -b:v 1490k -preset medium -pix_fmt yuv420p -pass 2 -c:a aac -b:a 128k -movflags +faststart output/interview-25mb.mp4
+```
+
+**HEVC (H.265)** is about 30% smaller at the same look: `-c:v libx265 -crf 26 -tag:v hvc1` (the tag makes QuickTime and Safari recognize it). Older players and some websites refuse HEVC, so H.264 stays the default for sharing.
+
+**The Mac's hardware encoder.** On Apple Silicon, `h264_videotoolbox` and `hevc_videotoolbox` encode several times faster than libx264 (on the 4 s demo clip both finish in under half a second, but libx264 used 2.3 s of processor time to VideoToolbox's 0.4 s; on an hour of 4K that's the difference between a coffee and a lunch). Quality is set with `-q:v` from 1 to 100 instead of CRF, and at the same look the file comes out somewhat bigger, with less control (no two-pass sizing).
+
+```sh
+ffmpeg -i interview.mp4 -c:v h264_videotoolbox -q:v 55 -pix_fmt yuv420p -c:a aac -b:a 128k -movflags +faststart output/interview-vt.mp4
+```
+
+**3. Check.** `ffprobe` the output the same way, then open it and scrub through: look at fast motion and dark areas for blockiness. On the demo clip, CRF 23 took 2.5 MB to 1.6 MB with no visible change on a test pattern (it was already H.264 at CRF 18; phone footage shrinks far more), and `--max 480` took it to 0.5 MB. If the picture suffers, step CRF down by 2; if the file is still too big, downscale before lowering quality further.
+
+**The script** inspects, encodes, and reports both sides:
+
+```sh
+node utils/edit/compress-video.mjs interview.mp4                      # H.264, CRF 23
+node utils/edit/compress-video.mjs interview.mp4 --max 1080 --crf 20  # 4K to 1080p, better quality
+node utils/edit/compress-video.mjs interview.mp4 --size 25            # under 25 MB, two passes
+node utils/edit/compress-video.mjs interview.mp4 --codec hevc         # smaller, plays on fewer things
+node utils/edit/compress-video.mjs interview.mp4 --hw                 # videotoolbox, fast
+```
+
+**Ask Claude.** Paste this into Claude Code with your file name and limit:
+
+```text
+Compress IMG_4821.MOV so it's under 25 MB and still looks good. First inspect it with ffprobe (size, duration, resolution, codec, bitrate, rotation) and tell me what you found. Don't modify the original: write to output/. Use H.264 (libx264) with yuv420p and faststart, keep the frame rate, downscale to 1080p if the source is larger, and if a CRF of 23 won't fit the limit, compute the bitrate for 25 MB and do a two-pass encode. Then report the input and output size, resolution and bitrate, and show me each ffmpeg command you ran.
+```
+
+## Demo: green-screen key
+
+A key turns one color transparent so another picture shows through. ffmpeg's `chromakey` filter does it in YUV (good for lit screens that aren't a perfect green), `despill` takes the green cast off hair and edges, and `overlay` puts the result on the background. The work is in two numbers: **similarity** (how far from the key color still counts as screen) and **blend** (how soft the edge is). Find them on one still before you render the clip.
+
+**What you need:** the green-screen shot (here `greenscreen.mp4`) and a background, video or still (here `background.mp4`). Real footage keys better when the screen is lit evenly and the subject stands well in front of it.
+
+![The generated green-screen clip at 2 s](_images/ffmpeg-greenscreen-before.jpg)
+
+**1. Pick the key color from the footage.** Pull a frame, then read a pixel from the screen with ImageMagick (install it with `brew install imagemagick`):
+
+```sh
+ffmpeg -ss 2 -i greenscreen.mp4 -frames:v 1 output/frame.png
+magick output/frame.png -format "%[hex:p{20,20}] %[hex:p{1260,700}]\n" info:
+```
+
+That prints the color at the top-left and bottom-right corners as RRGGBB. The generated clip gives `00FF01`; a real lit screen is more like `1FB22A` or `00B140`, which is why you pick rather than assume. If the two corners differ a lot, the screen is unevenly lit: open the frame and read a pixel near the subject instead.
+
+**2. Try the key on one still.** Same frame, same background, three similarity values; each takes a second:
+
+```sh
+ffmpeg -ss 2 -i background.mp4 -ss 2 -i greenscreen.mp4 -filter_complex "[1:v]chromakey=0x00FF00:0.1:0.05,despill=type=green[fg];[0:v][fg]overlay=(W-w)/2:(H-h)/2[v]" -map "[v]" -frames:v 1 output/key-010.png
+ffmpeg -ss 2 -i background.mp4 -ss 2 -i greenscreen.mp4 -filter_complex "[1:v]chromakey=0x00FF00:0.2:0.05,despill=type=green[fg];[0:v][fg]overlay=(W-w)/2:(H-h)/2[v]" -map "[v]" -frames:v 1 output/key-020.png
+ffmpeg -ss 2 -i background.mp4 -ss 2 -i greenscreen.mp4 -filter_complex "[1:v]chromakey=0x00FF00:0.3:0.05,despill=type=green[fg];[0:v][fg]overlay=(W-w)/2:(H-h)/2[v]" -map "[v]" -frames:v 1 output/key-030.png
+```
+
+Open the three PNGs side by side and look at the edges. Green left around the subject: similarity too low. Parts of the subject gone, or light colors on them turning see-through: too high. On the generated clip 0.2 is right; at 0.3 with blend 0.1 the pale square on the shape starts to fade, and at 0.4 it disappears. Blend softens the edge, but above about 0.1 it also eats into light colors, so raise it in small steps. Anything green on the subject goes with the screen; that's why presenters don't wear green.
+
+**3. Render the clip** with the numbers you chose. `shortest=1` stops when the shorter input ends; the output is the background's size, and `-map "1:a?"` takes the sound from the green-screen shot if it has any.
+
+```sh
+ffmpeg -i background.mp4 -i greenscreen.mp4 -filter_complex "[1:v]chromakey=0x00FF00:0.2:0.05,despill=type=green[fg];[0:v][fg]overlay=(W-w)/2:(H-h)/2:shortest=1[v]" -map "[v]" -map "1:a?" -c:v libx264 -crf 18 -pix_fmt yuv420p -c:a aac output/greenscreen-composite.mp4
+```
+
+To put the subject at the bottom of the frame use `overlay=(W-w)/2:H-h`; at a pixel position, `overlay=200:100`. To shrink the subject, add `scale=-2:540` after `despill`. For a still background, loop it: `-loop 1 -framerate 30 -i background.jpg` and add `-t 4` (the foreground's length). For a blue screen, key `0x0000FF` (or the picked color) and use `despill=type=blue`.
+
+![The same frame keyed over the test pattern](_images/ffmpeg-greenscreen-after.jpg)
+
+**4. Check.** Scrub the whole clip, not one frame: the key breaks where the subject moves into shadow or blurs. Edges that flicker want a touch more blend; a green halo wants despill (already on) or a little more similarity.
+
+**The script** picks, tests, and renders:
+
+```sh
+node utils/edit/greenscreen.mjs greenscreen.mp4 --pick 2                                # frame + corner colors
+node utils/edit/greenscreen.mjs greenscreen.mp4 background.mp4 --still 2 --similarity 0.2   # one PNG to judge
+node utils/edit/greenscreen.mjs greenscreen.mp4 background.mp4 --color 00FF00 --similarity 0.2 --blend 0.05 --position bottom --scale 0.8
+```
+
+**Ask Claude.** Paste this into Claude Code with your file names:
+
+```text
+Put me on a different background: me-greenscreen.mov is a shot of me in front of a green screen, and beach.mp4 is the background. First inspect both with ffprobe (size, length, audio). Don't modify the originals: write everything to output/. Pull a frame from the green-screen shot, read the screen color from it with ImageMagick, and use that as the chromakey color. Render that one frame over the background at three similarity values (0.15, 0.25, 0.35) with despill, show me the three PNGs and tell me which looks best and why, then render the full clip with that value, keeping my audio, centered, at the background's size. Show me each command you ran.
+```
 
 ## Trim
 
@@ -95,7 +267,7 @@ ffmpeg -i clip1.mov -i clip2.mov -filter_complex "[0:v][1:v]xfade=transition=fad
 
 ## Convert and compress
 
-A safe default for sharing: H.264 video, AAC audio, plays everywhere.
+A safe default for sharing: H.264 video, AAC audio, plays everywhere. [Demo: compress footage](#demo-compress-footage) walks through this, sizing to a megabyte limit, HEVC, and the Mac's hardware encoder.
 
 ```sh
 ffmpeg -i clip1.mov -c:v libx264 -crf 23 -preset medium -pix_fmt yuv420p -c:a aac -b:a 192k -movflags +faststart output/clip1-h264.mp4
@@ -110,12 +282,6 @@ ffmpeg -i clip1.mov -c:v libx264 -crf 23 -preset medium -pix_fmt yuv420p -c:a aa
 | `-b:a 192k` | Audio bitrate. |
 
 On the test clip, 28.7 MB of ProRes became 3.2 MB of H.264.
-
-Faster on a Mac, using the hardware encoder (quality set by bitrate instead of CRF):
-
-```sh
-ffmpeg -i clip1.mov -c:v h264_videotoolbox -b:v 8M -pix_fmt yuv420p -c:a aac output/clip1-vt.mp4
-```
 
 ## Resize and make proxies
 
@@ -239,13 +405,7 @@ Measure (EBU R128, the broadcast and streaming standard):
 ffmpeg -i voice.wav -af loudnorm=I=-16:TP=-1.5:LRA=11:print_format=summary -f null -
 ```
 
-Normalize to -16 LUFS (a common target for online video and podcasts):
-
-```sh
-ffmpeg -i voice.wav -af loudnorm=I=-16:TP=-1.5:LRA=11 -ar 48000 output/voice-normalized.wav
-```
-
-The `-ar 48000` matters: `loudnorm` works internally at 192 kHz and would otherwise write a 192 kHz file. This one-pass version is good enough for most work. For exact two-pass normalization over a folder, use [ffmpeg-normalize](more-tools.md#ffmpeg-normalize).
+To move a file to a target, see [Demo: normalize audio](#demo-normalize-audio): the two-pass version, the targets by platform, and the script. For a folder of files, [ffmpeg-normalize](more-tools.md#ffmpeg-normalize) does the same two passes.
 
 ## Silence detection: the basis for rough cuts
 
@@ -290,7 +450,7 @@ ffmpeg covers most audio editing on its own, so for most work it is enough. SoX 
 | Mono, 16 kHz (for speech-to-text) | `ffmpeg -i voice.wav -ac 1 -ar 16000 output/voice-16k.wav` |
 | Fade | `-af "afade=t=in:d=0.5,afade=t=out:st=2.5:d=0.5"` |
 | Filter out rumble | `-af "highpass=f=80"` |
-| Normalize | `-af loudnorm=I=-16:TP=-1.5:LRA=11` (see [Loudness](#loudness)) |
+| Normalize | two-pass `loudnorm` (see [Demo: normalize audio](#demo-normalize-audio)) |
 | Mix voice over music at 30% | see below |
 
 ```sh
