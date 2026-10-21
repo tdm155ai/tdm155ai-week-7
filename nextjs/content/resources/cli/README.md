@@ -1,9 +1,9 @@
 ---
 title: The command line
 description: Why ffmpeg, ImageMagick, SoX and friends pair so well with Claude Code, how to ask for edits, and how to work safely.
-author: claude
+author: codex
 order: 40
-checked: 2026-10-20
+checked: 2026-10-21
 ---
 
 The editing apps put every decision behind a button. The command-line tools put every decision in a line of text. That is the reason they work so well with Claude Code: Claude reads text, writes text, and can run what it writes.
@@ -48,9 +48,9 @@ sox --version
 exiftool -ver
 ```
 
-The sheets in this section were tested on an Apple Silicon Mac on 2026-10-20 with ffmpeg 9.0.2 (plus 7.1.1 for subtitle burn-in), ImageMagick 7.1.1-47, SoX 14.4.2 and ExifTool 13.25, all from Homebrew.
+Verification varies by page: check each sheet's version and status. On October 21, Homebrew install names above and the local ExifTool, whisper.cpp, auto-editor, SoX, sips, and afconvert help were checked. `(verify)` marks optional workflows not run locally. Install only what you need.
 
-One thing to know now: the standard Homebrew `ffmpeg` no longer includes subtitle burn-in or on-screen text (`subtitles` and `drawtext`). If you need those, install `ffmpeg-full` alongside it. The [ffmpeg sheet](ffmpeg.md#subtitles) explains.
+For subtitle burn-in, check the filters in your ffmpeg build first. See the [ffmpeg subtitle notes](ffmpeg.md#subtitles) for build-specific instructions.
 
 ## Safety habits
 
@@ -61,11 +61,45 @@ These matter more when an agent is running the commands.
 3. **Never overwrite originals.** Watch for `-y` in ffmpeg (overwrite without asking), `magick mogrify` without `-path` (rewrites files in place), and `exiftool` without `-o` (edits the file and leaves a `_original` backup). `ffmpeg -n` refuses to overwrite anything.
 4. **Check after.** Probe the output: `ffprobe` for duration, codec, frame rate and size; `magick identify` for dimensions; `soxi` for duration and sample rate. Then open it and look or listen.
 5. **Try one file before the whole folder.** Run the command on one file, check it, then batch.
-6. **Check what's in the file before you share it.** Phone photos and videos carry location and device data. See [ExifTool](more-tools.md#exiftool).
+6. **Check what's in the file before you share it.** Phone photos and videos carry location and device data. See [ExifTool](exiftool.md).
 
-## The sheets
+## The sheets: start with your job
 
-- [ffmpeg and ffprobe](ffmpeg.md): video and audio: inspect, trim, join, convert, resize, captions, thumbnails, GIFs, speed, vertical crops, fades, loudness, silence and scene detection.
-- [ImageMagick](imagemagick.md): images: identify, resize, crop, convert (including HEIC), strip metadata, batch, contact sheets, captions, watermarks, color, animated GIFs. Also `sips`, which comes with macOS.
-- [SoX](sox.md): audio: inspect, trim, fade, normalize, convert, join, mix, remove silence, noise reduction, tempo and pitch, spectrograms.
-- [More tools](more-tools.md): ExifTool, whisper.cpp (transcripts and SRT captions), auto-editor (silence-based cuts that open in Premiere, Resolve or Final Cut), Demucs (stem separation), ffmpeg-normalize, MediaInfo, yt-dlp.
+### Photo
+
+- [ImageMagick](imagemagick.md): resize, crop, convert, contact sheets, and image batches.
+- [ExifTool](exiftool.md): inspect camera and location metadata; make a sharing copy.
+- [More tools](more-tools.md): built-in [sips](more-tools.md#sips-built-in-image-fallback), libvips for large batches, and model-based enlargement options.
+
+### Video
+
+- [ffmpeg and ffprobe](ffmpeg.md): trims, conversions, proxies, crops, captions, and output inspection.
+- [auto-editor](auto-editor.md): preview silence-based cuts and export an editable rough cut.
+- [More tools](more-tools.md): HandBrakeCLI presets, gifski, and mpv for playback checks.
+
+### Audio
+
+- [SoX](sox.md): effects chains, noise profiles, fades, and spectrograms.
+- [ffmpeg](ffmpeg.md#audio-with-ffmpeg): extract and convert soundtracks, mix, and measure loudness.
+- [More tools](more-tools.md): Demucs for stems, ffmpeg-normalize for batches, and the Mac's afconvert.
+
+### Transcripts and captions
+
+- [whisper.cpp](whisper-cpp.md): local transcript and SRT/VTT drafts; review against the recording.
+- [ffmpeg subtitles](ffmpeg.md#subtitles): attach or burn captions into video after checking timing.
+
+### Inspecting files
+
+- [ffprobe](ffmpeg.md#inspect-with-ffprobe): streams, codecs, dimensions, duration, and frame rate.
+- [ImageMagick identify](imagemagick.md#identify-what-is-this-image): image dimensions and format.
+- [soxi](sox.md#inspect-with-soxi): audio sample rate, channels, and duration.
+- [ExifTool](exiftool.md): metadata as readable text or JSON.
+- [MediaInfo](more-tools.md#mediainfo): an alternative readable media report.
+
+## Demos
+
+- [Demo: normalize audio](ffmpeg.md#demo-normalize-audio): two-pass loudness normalization.
+- [Demo: compress footage](ffmpeg.md#demo-compress-footage): quality, file size, and resolution choices.
+- [Demo: green-screen key](ffmpeg.md#demo-green-screen-key): choose the key, test a still, and composite.
+
+C2 still-background-removal demo link pending: the orchestrator will add it once C2 reports. The rembg sheet is being prepared by C2.

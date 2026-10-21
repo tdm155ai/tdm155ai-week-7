@@ -1,7 +1,7 @@
 ---
 title: SoX
 description: The classic command-line audio tool. Inspect, trim, fade, normalize, join, mix, remove silence, reduce noise, and draw spectrograms.
-author: claude
+author: codex
 order: 30
 checked: 2026-10-20
 ---
@@ -28,6 +28,8 @@ The SoX that Homebrew installs is version 14.4.2, which dates from 2015. It stil
 
 ## The shape of a command
 
+Create `output/` first (`mkdir -p output`), use new filenames, and keep originals outside it. The examples below assume this folder exists. SoX can overwrite existing outputs; choose a fresh destination for each attempt.
+
 ```sh
 sox [input options] input.wav [output options] output.wav [effect args] [effect args] ...
 ```
@@ -49,7 +51,7 @@ sox -h | grep "AUDIO FILE FORMATS"
 On the tested build, the list includes `mp3`, `flac`, `ogg`, `opus`, `wav`, `aiff` and `caf`, and does **not** include `m4a`. In practice `sox in.mp3 out.wav` worked, and `sox in.m4a out.wav` failed with `no handler for file extension 'm4a'`. Phone voice memos and many video soundtracks are M4A/AAC, so convert with ffmpeg first:
 
 ```sh
-ffmpeg -i memo.m4a -c:a pcm_s16le output/memo.wav
+ffmpeg -n -i memo.m4a -c:a pcm_s16le output/memo.wav
 ```
 
 ## Inspect with soxi
@@ -110,20 +112,20 @@ sox stereo.wav output/mono.wav remix -                    # mix all channels dow
 List the inputs one after another:
 
 ```sh
-sox voice.wav music48.wav output/joined.wav
+sox voice.wav output/music48.wav output/joined.wav
 ```
 
 **The files must have the same sample rate and channel count.** In testing, joining a 48 kHz file to a 44.1 kHz one failed with `Input files must have the same sample-rate`. Convert first:
 
 ```sh
-sox music.wav -r 48000 music48.wav
+sox music.wav -r 48000 output/music48.wav
 ```
 
 ## Mix
 
 ```sh
-sox -m voice.wav music48.wav output/mixed.wav                  # mix (each input turned down to avoid clipping)
-sox -m -v 1 voice.wav -v 0.3 music48.wav output/mixed2.wav     # voice at full, music at 30%
+sox -m voice.wav output/music48.wav output/mixed.wav                  # mix (each input turned down to avoid clipping)
+sox -m -v 1 voice.wav -v 0.3 output/music48.wav output/mixed2.wav     # voice at full, music at 30%
 sox -M left.wav right.wav output/stereo.wav                    # merge two mono files into one stereo file
 ```
 
@@ -150,7 +152,7 @@ sox noisy-voice.wav output/cleaned.wav noisered output/room.prof 0.21
 
 The last number (0–1, default 0.5) is how hard to reduce. Start around 0.2–0.3 and listen on headphones: too high and voices go watery. The SoX manual recommends trying several amounts before replacing anything.
 
-To make a test file: `ffmpeg -f lavfi -i "anoisesrc=color=pink:amplitude=0.05:duration=10:sample_rate=48000" noise.wav`, then `sox -m voice.wav noise.wav noisy-voice.wav trim 0 8`. In our test the noise floor in the pause dropped from an RMS delta of 0.0029 to 0.00005 (`sox file.wav -n trim 3.2 1 stat`).
+The earlier October 20 test reported a lower noise floor after this workflow. The amount above is a starting point, not a guarantee: listen for damaged consonants and watery artifacts before using the output.
 
 Always record 5–10 seconds of room tone at a shoot. This is what it's for.
 
@@ -180,7 +182,7 @@ Claude can read the PNG. Try: "Make a spectrogram of `room-tone.wav`, look at it
 sox -n -r 48000 -c 1 output/tone.wav synth 3 sine 440
 ```
 
-Three seconds of 440 Hz at 48 kHz mono. The Mac's `say` command makes test speech: `say -o speech.aiff "Testing one two three"`.
+Three seconds of 440 Hz at 48 kHz mono. The Mac's `say` command makes test speech: `say -o output/speech.aiff "Testing one two three"`.
 
 ## Batch a folder
 
