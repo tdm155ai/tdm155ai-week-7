@@ -1,6 +1,6 @@
 # tdm155ai-week-7
 
-TDM 155AI week 7 (class 2026-10-21): Editing. Editing video, audio, and images, with the standard apps and with AI. A local Next app in `nextjs/` renders the week's Markdown in `nextjs/content/`; the main section is `/resources`, one sheet per editing app and command-line tool. Private; nested in `ll-26-27/the-notebook` at `apps/tdm155ai/tdm155ai-week-7/`.
+TDM 155AI week 7 (class 2026-10-21): Editing. Editing video, audio, and images, with the standard apps and with AI. A local Next app in `nextjs/` renders the week's Markdown in `nextjs/content/`; the main section is `/resources`, one sheet per editing app and command-line tool. Public since 2026-10-21; nested in the Learning Lab's Notebook at `apps/tdm155ai/tdm155ai-week-7/`.
 
 ## Run it
 
