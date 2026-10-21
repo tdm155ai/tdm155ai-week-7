@@ -15,6 +15,17 @@ Codex drafted this board on the morning of October 21 (thread `01a15e27-4b1c-726
 
 **If you are an agent given a task:** read the repo's `AGENTS.md`, this board, then your brief; do the task within the files it names; write your report. **If you are the orchestrator:** read `ORCHESTRATOR.md` first.
 
+## Paused, 2026-10-21 (afternoon)
+
+Marlon: "ok i'm going to wind this one down--will revisit in next iteration of the course". Where it stopped:
+
+- **Reports in:** A1, B, C1, D, F, G, and E. The orchestrator hasn't read or checked any of them; the task table below still shows the morning's statuses.
+- **Not committed when work stopped:** E's report (`reports/E-cli-tools.md`) and C2's work (`utils/edit/remove-bg.mjs`, `utils/test/edit-remove-bg.test.mjs`, two `rembg-collins-*` images in `cli/_images/`). C2 had written no report. Check whether either agent finished before committing their files.
+- **Not started:** A2 (brief still a stub). The orchestrator also hadn't yet added the `package.json` script lines or the `AGENTS.md` sentence that agents requested in their reports.
+- **Not pushed:** 19+ local commits. The repo has been public since 2026-10-21, so a push publishes the reports and briefs too.
+- **Dev server** on 3007: stopped.
+- **Next time:** read the reports, check each one against the repo, update the table, then decide what carries into the next run of the course (and whether `utils/` becomes an `ll-kits` kit).
+
 ## State on 2026-10-21
 
 - Class 7 (Editing) is today. The course planning home is The Notebook's `_context/projects/50-in-focus/tdm155ai-dev/plan/weeks/07-20261019-editing/`.
