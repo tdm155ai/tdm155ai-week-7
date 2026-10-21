@@ -57,6 +57,7 @@ Codex drafted this board on the morning of October 21 (thread `01a15e27-4b1c-726
 
 - [ ] What time is class today, and should any of this be usable in it, or is it for students afterward?
 - [x] C's recipes: normalize audio, compress footage, remove background of a still, green-screen key (Marlon, 2026-10-21).
+- [ ] **Week 6's OpenRouter key has hit its monthly limit** (403 "Key limit exceeded", checked 11:40 on 2026-10-21). Copying week 6's `.env` into week 7 will carry that key; G's Nano Banana check and any live-key test will fail until the limit is raised or another key is used.
 - [ ] Real green-screen footage and a photo for the demos, or are generated ones fine?
 - [ ] Is Codex thread `01a15e27…` still open, or done?
 - [ ] Week 6's `utils/` was copied from week 5; week 7 would be its third app. Make it a kit in `ll-kits` (the copy-forward-twice rule)?
