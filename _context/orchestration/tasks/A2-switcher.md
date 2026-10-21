@@ -4,7 +4,7 @@ title: The camera switcher webview, and rendering a cut list
 author: claude
 status: Waiting on A1
 owns: nextjs/app/multicam/, utils/multicam/render*.mjs, utils/test/multicam-render*.test.mjs
-depends_on: A1 (the manifest format and a working sync)
+depends_on: A1 (the manifest format and a working sync), F (the media layer: lib/media.mjs and the /media route, which answer the media-serving question below)
 report: reports/A2-switcher.md
 ---
 
