@@ -1,9 +1,10 @@
 ---
 title: ImageMagick
 description: The command-line image tool. Resize, crop, convert, strip metadata, batch a folder, make contact sheets, captions, watermarks and GIFs. Plus sips, which comes with macOS.
-author: claude
+author: claude; background-removal demo by codex
 order: 20
 checked: 2026-10-20
+updated: 2026-10-21
 ---
 
 ## At a glance
@@ -22,6 +23,82 @@ The shape of a command: input, operations in order, output.
 
 ```sh
 magick input.jpg -resize 1600x1600 -quality 82 output/result.jpg
+```
+
+## Demo: remove a flat background from a still
+
+Use ImageMagick when the backdrop is an even wall, seamless, or green screen connected to the image edges. For a room, foliage, or a subject whose edge matches the backdrop, use [rembg's segmentation demo](rembg.md). A color key cannot tell a shirt from a wall of the same color.
+
+**You need:** ImageMagick 7 and a still. This demo uses a 480×360 illustration drawn with ImageMagick for this page by Codex: a package with a pale label, on a two-tone pale green backdrop. It deliberately includes matching colors inside the subject. Tested with the installed ImageMagick 7.1.1-47 on October 21, 2026.
+
+![Original package illustration and cutouts at fuzz 0, 5 and 35 percent, shown on dark backgrounds](_images/imagemagick-flat-comparison.jpg)
+
+Left to right: original, `0%`, `5%`, `35%`. Too little fuzz leaves the lower band; too much eats the pale rim. The enclosed label survives flood fill because it is separated from the backdrop. JPEG compression adds small color differences too.
+
+Run these from the repository root. Use a fresh output folder when repeating the demo, so earlier results stay available.
+
+**1. Copy and inspect.** The supplied source stays untouched. Look for its dimensions and whether it already has transparency.
+
+```sh
+mkdir -p output/edit/flat-demo
+cp nextjs/content/resources/cli/_images/imagemagick-flat-source.jpg output/edit/flat-demo/source.jpg
+magick identify output/edit/flat-demo/source.jpg
+magick output/edit/flat-demo/source.jpg -format '%[pixel:p{0,0}]' info:
+```
+
+The last command samples the upper-left background pixel. Do not assume that corner is background in your own photo.
+
+**2. Compare tolerances.** `-fuzz` is the color tolerance. Flood fill samples each corner and removes only connected regions of similar color; change `479` and `359` for your image's width minus one and height minus one.
+
+```sh
+for fuzz in 0 5 35; do
+  magick output/edit/flat-demo/source.jpg -alpha set -fuzz "${fuzz}%" -fill none \
+    -draw 'color 0,0 floodfill' -draw 'color 479,0 floodfill' \
+    -draw 'color 0,359 floodfill' -draw 'color 479,359 floodfill' \
+    "output/edit/flat-demo/fuzz-${fuzz}.png"
+done
+```
+
+For an image with no matching subject colors, the shorter global color key is `magick source.jpg -alpha set -fuzz 5% -transparent 'srgb(220,232,206)' output/edit/global-key.png`. Replace that sample with your corner's color. It also removes matching colors **inside** the subject; the flood-fill version above preserves enclosed details. Neither route can preserve a matching subject region connected to the background, and flood fill can leave enclosed background holes.
+
+**3. Soften only alpha, then trim.** A small blur softens the mask while keeping the picture's RGB detail sharp. PNG preserves transparency; JPEG does not.
+
+```sh
+magick output/edit/flat-demo/fuzz-5.png -channel A -blur 0x0.7 +channel -trim +repage output/edit/flat-demo/cutout.png
+```
+
+**4. Put it on a new background.** Flatten onto a color, or use a background image resized to the cutout's dimensions (replace `WIDTH` and `HEIGHT` after `magick identify`).
+
+```sh
+magick output/edit/flat-demo/cutout.png -background white -flatten output/edit/flat-demo/on-white.png
+magick output/edit/flat-demo/cutout.png -background '#222222' -flatten output/edit/flat-demo/on-dark.png
+```
+
+```sh
+magick background.jpg -auto-orient -resize 'WIDTHxHEIGHT^' -gravity center -extent WIDTHxHEIGHT output/edit/flat-demo/cutout.png -compose Over -composite output/edit/flat-demo/on-photo.png
+```
+
+An optional soft shadow: clone the alpha silhouette, blur/offset it, then place the cutout over it. The shadow enlarges the canvas.
+
+```sh
+magick output/edit/flat-demo/cutout.png \( +clone -background black -shadow 25x3+4+6 \) +swap -background none -layers merge +repage output/edit/flat-demo/shadow.png
+magick output/edit/flat-demo/shadow.png -background white -flatten output/edit/flat-demo/shadow-on-white.png
+```
+
+**Check:** view `on-white.png` and `on-dark.png` at 100%. Look for leftover bands, halos, lost pale details, and unwanted holes. Keep the unsoftened mask for comparison. Lower fuzz if the subject disappears; try rembg if the backdrop is uneven. A transparent checkerboard is a viewer aid, not a pattern to bake into the PNG.
+
+The script inspects first, prints its commands, saves a copy and intermediate mask, trims, and creates a unique output folder:
+
+```sh
+node utils/edit/remove-bg.mjs nextjs/content/resources/cli/_images/imagemagick-flat-source.jpg --method flat --fuzz 5 --background white
+```
+
+Omit `--method` to let eight edge samples choose a route. The script prints the reason; this is a heuristic and can be wrong. `--background background.jpg` covers/crops that image to the trimmed cutout's size. See `--help` for all options.
+
+**Ask Claude**
+
+```text
+Remove the background from photos/my-still.jpg and save a transparent PNG plus a version on white. Read the ImageMagick and rembg resource demos. Inspect and view the image first, including dimensions, orientation and alpha. Choose flat corner flood fill only if the backdrop is even and separated from the subject; otherwise use local rembg with an explicit model. Keep the original untouched, work on a copy, and write to a new folder in output/edit/. Use utils/edit/remove-bg.mjs where appropriate and show the exact commands you ran. Check the result on light and dark backgrounds at 100%, especially matching subject colors, hair and holes. Tell me what needs manual cleanup.
 ```
 
 Examples below use `photos/photo1.jpg` (4032x3024, with camera and GPS metadata), `photos/photo2.jpg` (3024x4032), `photos/logo-on-white.png` and `photos/watermark.png` (white text on a transparent background). Run `mkdir -p output` first.
